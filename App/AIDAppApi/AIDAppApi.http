@@ -1,0 +1,14 @@
+@AIDAppApi_HostAddress = http://localhost:5017
+
+# GET {{AIDAppApi_HostAddress}}/weatherforecast/
+# Accept: application/json
+
+# ###
+POST {{AIDAppApi_HostAddress}}/helloapi/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/gettask/
+Accept: application/json
+
+###
