@@ -1,6 +1,8 @@
 
 using AIDAppApi.Configurations;
 using Microsoft.Extensions.Options;
+using System.Net.Http.Headers;
+using System.Text.RegularExpressions;
 
 
 namespace AIDAppApi.Services
@@ -79,6 +81,45 @@ namespace AIDAppApi.Services
             throw new Exception();
         }
 
+        public async Task<string> GetContentForLiarTaskAsync(string tokenId, CancellationToken cancellationToken = default)
+        {
+            Uri uri = new Uri($"{_aiDevsConfig.BaseAddress}/task/{tokenId}");
+
+            var formContent = new FormUrlEncodedContent(new[]
+            {
+                new KeyValuePair<string, string>("question", "Give me name of any city")
+            });
+
+            var response = await _httpClient.PostAsync(uri, formContent, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<LiarResponse>(cancellationToken);
+
+                return result!.answer!; 
+            }
+
+            throw new Exception();
+        }
+
+        public async Task<InpromptFilteredData> GetContentForInpromptTaskAsync(string tokenId, CancellationToken cancellationToken = default)
+        {
+            Uri uri = new Uri($"{_aiDevsConfig.BaseAddress}/task/{tokenId}");
+
+            var response = await _httpClient.PostAsync(uri, null, cancellationToken);
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<InpromptResponse>(cancellationToken);
+                var name = GetName(result!.question);
+                var filteredInput = result.input.Where((x) => x.Contains(name)).ToArray();
+
+                var filteredData = new InpromptFilteredData(result.question, filteredInput);
+
+                return filteredData!; 
+            }
+
+            throw new Exception();
+        }
+
         public async Task<string> SendAnswerAsync<T>(string tokenId, T answer, CancellationToken cancellationToken = default)
         {
             Uri uri = new Uri($"{_aiDevsConfig.BaseAddress}/answer/{tokenId}");
@@ -94,13 +135,30 @@ namespace AIDAppApi.Services
             throw new Exception();
         }
 
-        public record TokenRequest(string apikey);
 
+        private static string? GetName(string sentence)
+        {
+            string pattern = @"\b[A-Z][a-z]*\b";
+            Match match = Regex.Match(sentence, pattern);
+            if (match.Success)
+            {
+                return match.Value;
+            }
+            else
+            {
+                return null;
+            }
+        }
+
+        public record TokenRequest(string apikey);
         public record TokenResponse(int code, string msg, string token);
+        public record LiarResponse(int code, string msg, string answer);
+        public record InpromptResponse(int code, string msg, string[] input, string question);
+        public record InpromptFilteredData(string? question, string[]? input);
 
         public record HelloApiResponse(int code, string msg, string cookie);
-
         public record ModerationResponse(int code, string msg, string[] input);
+       
 
         public record AnswerRequest<T>(T answer);
     }
