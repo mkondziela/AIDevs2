@@ -12,3 +12,35 @@ POST {{AIDAppApi_HostAddress}}/gettask/
 Accept: application/json
 
 ###
+POST {{AIDAppApi_HostAddress}}/moderation/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/blogger/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/liar/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/inprompt/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/embedding/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/whisper/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/functions/
+Accept: application/json
+
+###
+POST {{AIDAppApi_HostAddress}}/rodo/
+Accept: application/json
+
+###
